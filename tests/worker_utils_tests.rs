@@ -74,7 +74,7 @@ fn bootstrap_bundle_renders_valid_python_and_metadata() {
     let decoded_cfg: Value = serde_json::from_slice(&decoded_bytes).unwrap();
     assert_eq!(decoded_cfg["session_id"], "sess123");
     assert_eq!(decoded_cfg["worker_token"], "tok456");
-    assert_eq!(decoded_cfg["idle_timeout_sec"], 0);
+    assert_eq!(decoded_cfg["idle_timeout_sec"], 600);
     assert_eq!(decoded_cfg["rpc_port"], 8765);
 
     let meta_str = fs::read_to_string(bundle.bundle_dir.join("kernel-metadata.json")).unwrap();

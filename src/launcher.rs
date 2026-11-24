@@ -12,8 +12,8 @@ use reqwest::Client;
 use serde_json::{Value, json};
 
 use crate::config::{
-    ActiveSession, DRAIN_AT_SEC, MAX_LIFETIME_SEC, Settings, load_active_session,
-    save_active_session,
+    ActiveSession, DEFAULT_IDLE_TIMEOUT_MIN, DRAIN_AT_SEC, MAX_LIFETIME_SEC, Settings,
+    load_active_session, save_active_session,
 };
 use crate::kaggle_api::{KaggleApiClient, SaveKernelRequest};
 
@@ -45,7 +45,7 @@ impl Default for LaunchOptions {
     fn default() -> Self {
         Self {
             gpu: true,
-            idle_timeout_min: 0,
+            idle_timeout_min: DEFAULT_IDLE_TIMEOUT_MIN,
             mount_datasets: Vec::new(),
             chain_previous_output: false,
             wait_ready_sec: 240,

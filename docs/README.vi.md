@@ -16,7 +16,7 @@
    - `job_spawn` / `job_logs`: Chạy ngầm độc lập với kết nối mạng, tự gọt ký tự `\r` của thanh `tqdm` để không làm tràn context của Agent.
 5. **Bảo vệ Quota 30h/tuần & Chống mất dữ liệu ở mốc 12h**:
    - Tự gửi `SIGTERM` lúc `11h35m` và thoát sạch `exit(0)` lúc `11h40m` để Kaggle lưu trọn vẹn 20 GB `/kaggle/working` thay vì bị kill lỗi timeout ở `12h00m`.
-   - Tuỳ chọn bật tự tắt khi rỗi (`idle_timeout_min` / `--idle 30`, mặc định `0` = tắt để giữ phiên sẵn sàng tối đa 11h40m).
+   - Tự tắt sạch khi rỗi mặc định sau **10 phút** không có lệnh, không có job nền và GPU `< 3%` (`idle_timeout_min=10`; truyền `--idle 0` nếu muốn tắt cơ chế này).
 
 ---
 
@@ -56,7 +56,7 @@ KAGGLE_KEY=KGAT_token_cua_ban
 # Kiểm tra trạng thái (không tốn quota)
 kgsh status
 
-# Bật máy Dual T4 (~50 giây; thêm --idle 30 nếu muốn tự tắt khi rỗi)
+# Bật máy Dual T4 (~50 giây; mặc định tự tắt sau 10 phút rỗi, thêm --idle 0 nếu muốn giữ liên tục)
 kgsh up
 
 # Chạy lệnh trực tiếp trên máy Kaggle

@@ -12,8 +12,8 @@ use crate::utils::home_dir;
 pub const MAX_LIFETIME_SEC: u64 = 42_000;
 /// 11h 35m SIGTERM checkpoint drain window.
 pub const DRAIN_AT_SEC: u64 = 41_700;
-/// 0 = disabled by default (opt-in via `idle_timeout_min` / `--idle`).
-pub const DEFAULT_IDLE_TIMEOUT_MIN: u64 = 0;
+/// 10 minutes default idle auto-shutdown (set `0` / `--idle 0` to disable).
+pub const DEFAULT_IDLE_TIMEOUT_MIN: u64 = 10;
 pub const DEFAULT_KERNEL_SLUG: &str = "kaggle-mcp-worker";
 pub const DEFAULT_STATE_DATASET_SLUG: &str = "kaggle-mcp-state";
 pub const DEFAULT_TS_HOSTNAME: &str = "kaggle-mcp-worker";

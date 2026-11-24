@@ -8,6 +8,7 @@ use std::ffi::OsString;
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 
+use kaggle_shell_mcp::config::DEFAULT_IDLE_TIMEOUT_MIN;
 use kaggle_shell_mcp::mcp_server::{
     op_fs_sync, op_job_kill, op_job_list, op_job_logs, op_job_spawn, op_kaggle_down,
     op_kaggle_status, op_kaggle_up, op_term_exec, run_stdio_server,
@@ -33,8 +34,8 @@ enum Commands {
         /// Boot CPU-only instance
         #[arg(long)]
         no_gpu: bool,
-        /// Optional idle auto-shutdown minutes (0 = disabled by default)
-        #[arg(long, default_value_t = 0)]
+        /// Idle auto-shutdown minutes (default: 10; set 0 to disable)
+        #[arg(long, default_value_t = DEFAULT_IDLE_TIMEOUT_MIN)]
         idle: u64,
         /// Max seconds to wait for tunnel readiness
         #[arg(long, default_value_t = 240)]

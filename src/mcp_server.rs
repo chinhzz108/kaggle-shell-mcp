@@ -12,7 +12,9 @@ use serde::Deserialize;
 use serde_json::{Value, json};
 
 use crate::client::WorkerClient;
-use crate::config::{clear_active_session, load_active_session, load_settings};
+use crate::config::{
+    DEFAULT_IDLE_TIMEOUT_MIN, clear_active_session, load_active_session, load_settings,
+};
 use crate::kaggle_api::KaggleApiClient;
 use crate::launcher::{LaunchOptions, fetch_remote_state, launch_worker, pull_kernel_outputs};
 
@@ -24,6 +26,10 @@ pub fn format_json(value: &Value) -> Result<String> {
 
 fn default_true() -> bool {
     true
+}
+
+fn default_idle_timeout_min() -> u64 {
+    DEFAULT_IDLE_TIMEOUT_MIN
 }
 
 fn default_wait_ready_sec() -> u64 {
@@ -63,8 +69,8 @@ pub struct KaggleUpParams {
     /// Request Dual NVIDIA T4 x2 (`NvidiaTeslaT4`, 2x15GB VRAM). Set false for CPU-only.
     #[serde(default = "default_true")]
     pub gpu: bool,
-    /// Optional idle auto-shutdown in minutes (0 = disabled by default; e.g. 30 to auto-stop when idle).
-    #[serde(default)]
+    /// Idle auto-shutdown in minutes when no RPC calls, no active jobs, and GPU < 3% (default: 10; set 0 to disable).
+    #[serde(default = "default_idle_timeout_min")]
     pub idle_timeout_min: u64,
     /// Optional list of Kaggle dataset slugs (`["owner/dataset-slug"]`) mounted at `/kaggle/input`.
     #[serde(default)]
@@ -325,7 +331,7 @@ impl KaggleMcpServer {
 
     #[tool(
         name = "kaggle_up",
-        description = "Provision a headless Kaggle GPU worker (stays alive up to 11h40m safe drain). Requests Dual NVIDIA T4 x2 (2x15GB VRAM) by default; supports optional idle auto-shutdown, mounting Kaggle datasets at /kaggle/input, and chaining previous /kaggle/working output for >12h runs."
+        description = "Provision a headless Kaggle GPU worker (stays alive up to 11h40m safe drain). Requests Dual NVIDIA T4 x2 (2x15GB VRAM) by default with 10-minute idle auto-shutdown (set idle_timeout_min=0 to disable); supports mounting Kaggle datasets at /kaggle/input and chaining previous /kaggle/working output for >12h runs."
     )]
     async fn kaggle_up(
         &self,

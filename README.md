@@ -25,7 +25,7 @@ Kaggle offers ~30 hours/week of free **Dual NVIDIA Tesla T4 GPUs (`2 × 15 GB = 
   - `job_spawn` / `job_logs` — Process-group isolated background jobs that survive network drops, with automatic `tqdm` carriage-return (`\r`) compaction so progress bars never blow up LLM context windows.
 - **Built-In Quota & Snapshot Watchdogs**:
   - **11h40m Safe Drain**: Sends `SIGTERM` at `11h35m` so training loops flush checkpoints, then exits cleanly (`exit 0`) at `11h40m`—ensuring Kaggle commits your `/kaggle/working` (20 GB) output snapshot instead of killing the container at the 12h cliff.
-  - **Optional Idle Guard**: Off by default (`idle_timeout_min=0`) so your worker stays ready up to `11h40m`; pass `idle_timeout_min=30` (or `kgsh up --idle 30`) to enable automatic shutdown when idle with `< 3%` GPU utilization.
+  - **10m Idle Guard (Default On)**: Automatically shuts down cleanly (`exit 0`) after 10 minutes idle with no running jobs and `< 3%` GPU utilization (`idle_timeout_min=10` by default; pass `idle_timeout_min=0` or `kgsh up --idle 0` to disable).
 
 ---
 
@@ -114,7 +114,7 @@ claude mcp add kgsh -- /absolute/path/to/target/release/kgsh
 
 | Tool | Purpose |
 | :--- | :--- |
-| `kaggle_up` | Provision a headless Kaggle Dual-T4 worker (`gpu=true`, `idle_timeout_min=0` opt-in, `mount_datasets=[]`, `chain_previous_output=false`) |
+| `kaggle_up` | Provision a headless Kaggle Dual-T4 worker (`gpu=true`, `idle_timeout_min=10` default, `mount_datasets=[]`, `chain_previous_output=false`) |
 | `kaggle_status` | Inspect kernel status, live Dual-T4 GPU/VRAM %, RAM, `/kaggle/working` free space, and countdown to safe drain |
 | `kaggle_down` | Gracefully terminate the worker (`exit 0`) immediately to stop GPU billing; optionally pull `/kaggle/working` |
 | `term_exec` | Run bash commands in a persistent stateful PTY (`cwd`, shell vars, and virtualenvs persist across calls) |
@@ -134,7 +134,7 @@ Invoke `kgsh` with no arguments to run the MCP `stdio` server, or pass subcomman
 # Check status (costs 0 GPU quota)
 kgsh status
 
-# Boot a Dual-T4 GPU session (~50s cold start; add --idle 30 for optional idle auto-shutdown)
+# Boot a Dual-T4 GPU session (~50s cold start; auto-shuts down after 10m idle by default, use --idle 0 to disable)
 kgsh up
 
 # Run interactive commands (stateful PTY)
