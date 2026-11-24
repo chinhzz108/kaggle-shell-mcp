@@ -1,8 +1,4 @@
+/target/
 .env
-.venv/
 .kaggle_mcp/
-__pycache__/
-*.py[cod]
-build/
-dist/
-*.egg-info/
+*.tmp

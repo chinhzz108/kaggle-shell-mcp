@@ -1,0 +1,44 @@
+[package]
+name = "kaggle-shell-mcp"
+version = "0.1.0"
+edition = "2024"
+description = "Turn free 12h Kaggle Dual-T4 GPUs into live remote terminals & detached job runners for AI Agents via MCP (Rust edition)."
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/chinhzz108/kaggle-shell-mcp"
+keywords = ["mcp", "kaggle", "gpu", "ai-agent", "remote-terminal"]
+categories = ["command-line-utilities", "development-tools"]
+
+[lib]
+name = "kaggle_shell_mcp"
+path = "src/lib.rs"
+
+[[bin]]
+name = "kgsh"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+base64 = "0.23"
+clap = { version = "4.6", features = ["derive"] }
+dotenvy = "0.15"
+flate2 = "1.1"
+rand = "0.10"
+regex = "1.13"
+reqwest = { version = "0.13", default-features = false, features = ["json", "native-tls", "http2", "charset", "system-proxy"] }
+rmcp = { version = "3.11", features = ["server", "macros", "transport-io"] }
+schemars = "1.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tar = "0.4"
+thiserror = "2.0"
+tokio = { version = "1.54", features = ["rt-multi-thread", "macros", "time", "io-std", "process"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+zip = { version = "9.8", default-features = false, features = ["deflate"] }
+
+[dev-dependencies]
+axum = "0.8"
+rmcp = { version = "3.11", features = ["client", "transport-child-process"] }
+tempfile = "3.27"
+tokio = { version = "1.54", features = ["rt-multi-thread", "macros", "net", "time", "process"] }
