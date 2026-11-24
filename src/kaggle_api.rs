@@ -262,18 +262,23 @@ impl KaggleApiClient {
 
         if content_type.contains("application/json")
             && let Ok(val) = serde_json::from_str::<serde_json::Value>(&body_text)
-            && let Some(code) = val.get("code").and_then(|c| c.as_u64())
-            && code >= 400
         {
-            let msg = val
-                .get("message")
-                .and_then(|m| m.as_str())
-                .unwrap_or(&body_text)
-                .to_string();
-            return Err(KaggleApiError::Http {
-                status: code as u16,
-                message: msg,
-            });
+            // Kaggle returns either top-level `{"code": 403, "message": "..."}`
+            // or Google RPC style `{"error": {"code": 403, "message": "..."}}`.
+            let err_obj = val.get("error").filter(|e| e.is_object()).unwrap_or(&val);
+            if let Some(code) = err_obj.get("code").and_then(|c| c.as_u64())
+                && code >= 400
+            {
+                let msg = err_obj
+                    .get("message")
+                    .and_then(|m| m.as_str())
+                    .unwrap_or(&body_text)
+                    .to_string();
+                return Err(KaggleApiError::Http {
+                    status: code as u16,
+                    message: msg,
+                });
+            }
         }
 
         if !status.is_success() {
@@ -341,7 +346,7 @@ impl KaggleApiClient {
                     || low.contains("notfound")
                     || low.contains("not found")
                     || low.contains("cannot access kernel")
-                    || low.contains("permission 'kernels.get' was denied")
+                    || (low.contains("kernels.get") && low.contains("denied"))
                 {
                     KernelStatusInfo {
                         status: "NOT_CREATED_YET".to_string(),
